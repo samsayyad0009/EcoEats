@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoEats Exchange - Reduce Food Waste, Feed Communities</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        
+        :root {
+            --color-primary-500: #4CAF50; /* A vibrant green for primary actions */
+            --color-primary-600: #43A047; /* Darker green for hover */
+            --color-secondary-500: #FF9800; /* A warm orange for accents */
+            --color-secondary-600: #FB8C00; /* Darker orange for hover */
+            --color-background-light: #F8F8F8; /* Light background */
+            --color-text-dark: #333333; /* Dark text */
+            --color-text-light: #666666; /* Lighter text */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--color-text-dark);
+            background-color: var(--color-background-light);
+        }
+
+        
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--color-background-light);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--color-primary-500);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--color-primary-600);
+        }
+
+       
+        .mock-map {
+            background-color: #e0e0e0;
+            background-image: url('https://placehold.co/600x400/D0D0D0/808080?text=Mock+Map+View');
+            background-size: cover;
+            background-position: center;
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-xl */
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #555;
+            text-align: center;
+        }
+
+       
+        .btn-primary {
+            background-color: var(--color-primary-500);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary:hover {
+            background-color: var(--color-primary-600);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: var(--color-secondary-500);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .btn-secondary:hover {
+            background-color: var(--color-secondary-600);
+            transform: translateY(-2px);
+        }
+
+        
+        .message-box-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .message-box-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .message-box-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+        }
+
+        .message-box-overlay.active .message-box-content {
+            transform: translateY(0);
+        }
+
+        .message-box-content h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--color-primary-500);
+        }
+
+        .message-box-content p {
+            margin-bottom: 1.5rem;
+            color: var(--color-text-light);
+        }
+
+        .message-box-content button {
+            background-color: var(--color-primary-500);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+
+        .message-box-content button:hover {
+            background-color: var(--color-primary-600);
+        }
+    </style>
+</head>
+<body class="bg-background-light text-text-dark">
+
+    <!-- Custom Message Box HTML -->
+    <div id="messageBox" class="message-box-overlay">
+        <div class="message-box-content">
+            <h3 id="messageBoxTitle"></h3>
+            <p id="messageBoxText"></p>
+            <button onclick="hideMessageBox()">OK</button>
+        </div>
+    </div>
+
+    <!-- Header / Navbar -->
+    <header class="bg-white shadow-md py-4 sticky top-0 z-50">
+        <div class="container mx-auto px-6 flex justify-between items-center">
+            <!-- Logo -->
+            <a href="#" class="flex items-center space-x-2">
+                <span class="text-primary-500 text-3xl font-bold">♻️</span>
+                <span class="text-2xl font-extrabold text-primary-500">EcoEats</span>
+                <span class="text-2xl font-extrabold text-secondary-500">Exchange</span>
+            </a>
+
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex space-x-8">
+                <a href="#how-it-works" class="text-lg font-medium text-text-dark hover:text-primary-500 transition-colors">How It Works</a>
+                <a href="#listings" class="text-lg font-medium text-text-dark hover:text-primary-500 transition-colors">Find Food</a>
+                <a href="#impact" class="text-lg font-medium text-text-dark hover:text-primary-500 transition-colors">Our Impact</a>
+                <a href="#about" class="text-lg font-medium text-text-dark hover:text-primary-500 transition-colors">About Us</a>
+                <a href="#contact" class="text-lg font-medium text-text-dark hover:text-primary-500 transition-colors">Contact</a>
+            </nav>
+
+            <!-- Mobile Menu Button -->
+            <button id="mobileMenuButton" class="md:hidden focus:outline-none">
+                <svg class="w-8 h-8 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Mobile Navigation (Hidden by default) -->
+        <nav id="mobileMenu" class="md:hidden bg-white px-6 py-4 border-t border-gray-200 hidden">
+            <a href="#how-it-works" class="block py-2 text-lg font-medium text-text-dark hover:text-primary-500 transition-colors">How It Works</a>
+            <a href="#listings" class="block py-2 text-lg font-medium text-text-dark hover:text-primary-500 transition-colors">Find Food</a>
+            <a href="#impact" class="block py-2 text-lg font-medium text-text-dark hover:text-primary-500 transition-colors">Our Impact</a>
+            <a href="#about" class="block py-2 text-lg font-medium text-text-dark hover:text-primary-500 transition-colors">About Us</a>
+            <a href="#contact" class="block py-2 text-lg font-medium text-text-dark hover:text-primary-500 transition-colors">Contact</a>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-primary-500 to-secondary-500 text-white py-20 md:py-32 rounded-b-3xl shadow-xl">
+        <div class="container mx-auto px-6 text-center">
+            <h1 class="text-4xl md:text-6xl font-extrabold leading-tight mb-6">
+                Waste Less, Share More: <br class="hidden md:inline"> Empowering Sustainable Communities
+            </h1>
+            <p class="text-xl md:text-2xl mb-10 max-w-3xl mx-auto opacity-90">
+                Connecting local businesses with surplus food to those who need it, reducing waste and fighting hunger.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+                <a href="#listings" class="btn-secondary">
+                    Find Food Near You
+                </a>
+                <button class="btn-primary bg-white text-primary-500 hover:bg-gray-100" onclick="showMessageBox('Join EcoEats', 'Thank you for your interest! The business portal is currently under development. Stay tuned for updates!')">
+                    List Surplus Food
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="py-16 md:py-24 bg-background-light">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-12 text-primary-500">How EcoEats Exchange Works</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                <!-- Step 1 -->
+                <div class="bg-white p-8 rounded-xl shadow-lg text-center transform hover:scale-105 transition-transform duration-300">
+                    <div class="text-5xl mb-4">🍎</div>
+                    <h3 class="text-2xl font-semibold mb-4 text-primary-500">Businesses List Surplus</h3>
+                    <p class="text-text-light">Restaurants, bakeries, and grocery stores post their perfectly good, unsold food items.</p>
+                </div>
+                <!-- Step 2 -->
+                <div class="bg-white p-8 rounded-xl shadow-lg text-center transform hover:scale-105 transition-transform duration-300">
+                    <div class="text-5xl mb-4">📍</div>
+                    <h3 class="text-2xl font-semibold mb-4 text-primary-500">Users Find Food</h3>
+                    <p class="text-text-light">Individuals and community organizations browse listings by location, food type, and pickup time.</p>
+                </div>
+                <!-- Step 3 -->
+                <div class="bg-white p-8 rounded-xl shadow-lg text-center transform hover:scale-105 transition-transform duration-300">
+                    <div class="text-5xl mb-4">🤝</div>
+                    <h3 class="text-2xl font-semibold mb-4 text-primary-500">Connect & Collect</h3>
+                    <p class="text-text-light">Users connect with businesses to arrange a quick and easy pickup, preventing waste.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Food Listings Section -->
+    <section id="listings" class="py-16 md:py-24 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-12 text-primary-500">Available Food Near You</h2>
+
+            <!-- Search and Filter (Mock) -->
+            <div class="mb-10 p-6 bg-white rounded-xl shadow-lg flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4">
+                <input type="text" id="foodSearch" placeholder="Search for food or location..." class="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all">
+                <select id="foodTypeFilter" class="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all">
+                    <option value="">All Food Types</option>
+                    <option value="Bakery">Bakery</option>
+                    <option value="Produce">Produce</option>
+                    <option value="Prepared Meals">Prepared Meals</option>
+                    <option value="Dairy">Dairy</option>
+                </select>
+                <button class="btn-primary w-full md:w-auto" onclick="showMessageBox('Search & Filter', 'Search and filter functionality is simulated for this front-end demo!')">Apply Filters</button>
+            </div>
+
+            <!-- Food Listings Grid -->
+            <div id="foodListingsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+                <!-- Food cards will be injected here by JavaScript -->
+            </div>
+
+            <!-- Mock Map View -->
+            <div class="mock-map">
+                <p>Interactive Map Coming Soon!</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Impact Section -->
+    <section id="impact" class="py-16 md:py-24 bg-primary-500 text-white rounded-t-3xl shadow-xl">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-4xl font-bold mb-12">Our Impact So Far</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                <div class="p-6 bg-white bg-opacity-20 rounded-xl shadow-lg">
+                    <p class="text-5xl font-extrabold mb-2">15,000+</p>
+                    <p class="text-xl opacity-90">Lbs of Food Saved</p>
+                </div>
+                <div class="p-6 bg-white bg-opacity-20 rounded-xl shadow-lg">
+                    <p class="text-5xl font-extrabold mb-2">5,000+</p>
+                    <p class="text-xl opacity-90">Meals Provided</p>
+                </div>
+                <div class="p-6 bg-white bg-opacity-20 rounded-xl shadow-lg">
+                    <p class="text-5xl font-extrabold mb-2">200+</p>
+                    <p class="text-xl opacity-90">Businesses Joined</p>
+                </div>
+            </div>
+            <p class="text-lg mt-12 opacity-90 max-w-3xl mx-auto">
+                By connecting surplus food with communities, we're making a tangible difference in reducing waste and fostering food security, aligning with SDG 2 (Zero Hunger) and SDG 12 (Responsible Consumption and Production).
+            </p>
+        </div>
+    </section>
+
+    <!-- About Us Section -->
+    <section id="about" class="py-16 md:py-24 bg-background-light">
+        <div class="container mx-auto px-6 flex flex-col md:flex-row items-center gap-12">
+            <div class="md:w-1/2">
+                <img src="https://placehold.co/600x400/C8E6C9/4CAF50?text=Community+Impact" alt="People sharing food" class="rounded-xl shadow-xl w-full h-auto">
+            </div>
+            <div class="md:w-1/2">
+                <h2 class="text-4xl font-bold mb-6 text-primary-500">Our Story & Mission</h2>
+                <p class="text-lg mb-4 text-text-light">
+                    EcoEats Exchange was born from a simple idea: no good food should go to waste when people are hungry. We believe in the power of local communities to create sustainable solutions for pressing global challenges.
+                </p>
+                <p class="text-lg mb-4 text-text-light">
+                    Our mission is to build a bridge between food surplus and food need, fostering a more equitable and environmentally responsible food system. We empower businesses to reduce their environmental footprint and help individuals and organizations access nutritious food.
+                </p>
+                <p class="text-lg text-text-light">
+                    Join us in building a future where food waste is minimized, and communities thrive.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Us Section -->
+    <section id="contact" class="py-16 md:py-24 bg-secondary-500 text-white rounded-b-3xl shadow-xl">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-4xl font-bold mb-12">Get in Touch</h2>
+            <p class="text-xl mb-8 max-w-2xl mx-auto opacity-90">
+                Have questions, suggestions, or want to partner with EcoEats Exchange? We'd love to hear from you!
+            </p>
+            <form id="contactForm" class="max-w-xl mx-auto bg-white p-8 rounded-xl shadow-lg text-text-dark">
+                <div class="mb-6 text-left">
+                    <label for="name" class="block text-lg font-medium mb-2">Your Name</label>
+                    <input type="text" id="name" name="name" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" required>
+                </div>
+                <div class="mb-6 text-left">
+                    <label for="email" class="block text-lg font-medium mb-2">Your Email</label>
+                    <input type="email" id="email" name="email" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" required>
+                </div>
+                <div class="mb-6 text-left">
+                    <label for="message" class="block text-lg font-medium mb-2">Your Message</label>
+                    <textarea id="message" name="message" rows="5" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" required></textarea>
+                </div>
+                <button type="submit" class="btn-primary w-full">Send Message</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-text-dark text-white py-8">
+        <div class="container mx-auto px-6 text-center text-lg">
+            <p>&copy; 2025 EcoEats Exchange. All rights reserved.</p>
+            <div class="flex justify-center space-x-6 mt-4">
+                <a href="#" class="hover:text-primary-500 transition-colors">Privacy Policy</a>
+                <a href="#" class="hover:text-primary-500 transition-colors">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+       
+        function showMessageBox(title, text) {
+            document.getElementById('messageBoxTitle').innerText = title;
+            document.getElementById('messageBoxText').innerText = text;
+            document.getElementById('messageBox').classList.add('active');
+        }
+
+        function hideMessageBox() {
+            document.getElementById('messageBox').classList.remove('active');
+        }
+
+        const mobileMenuButton = document.getElementById('mobileMenuButton');
+        const mobileMenu = document.getElementById('mobileMenu');
+
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+                // Hide mobile menu after clicking a link
+                if (!mobileMenu.classList.contains('hidden')) {
+                    mobileMenu.classList.add('hidden');
+                }
+            });
+        });
+
+        const foodItems = [
+            {
+                id: 1,
+                name: "Freshly Baked Bread",
+                business: "The Daily Loaf Bakery",
+                type: "Bakery",
+                quantity: "15 loaves",
+                pickup: "Today until 6 PM",
+                image: "https://placehold.co/400x300/F0E68C/6B8E23?text=Fresh+Bread"
+            },
+            {
+                id: 2,
+                name: "Organic Mixed Greens",
+                business: "Green Harvest Grocer",
+                type: "Produce",
+                quantity: "20 lbs",
+                pickup: "Tomorrow 9 AM - 12 PM",
+                image: "https://placehold.co/400x300/90EE90/228B22?text=Mixed+Greens"
+            },
+            {
+                id: 3,
+                name: "Vegetable Lasagna",
+                business: "Mama Mia's Kitchen",
+                type: "Prepared Meals",
+                quantity: "10 servings",
+                pickup: "Today 5 PM - 7 PM",
+                image: "https://placehold.co/400x300/FFDAB9/A0522D?text=Lasagna"
+            },
+            {
+                id: 4,
+                name: "Assorted Pastries",
+                business: "Sweet Delights Cafe",
+                type: "Bakery",
+                quantity: "30 pieces",
+                pickup: "Today until 4 PM",
+                image: "https://placehold.co/400x300/F5DEB3/8B4513?text=Pastries"
+            },
+            {
+                id: 5,
+                name: "Fresh Milk & Yogurt",
+                business: "Dairy Farm Direct",
+                type: "Dairy",
+                quantity: "12 gallons milk, 20 yogurts",
+                pickup: "Tomorrow 8 AM - 10 AM",
+                image: "https://placehold.co/400x300/ADD8E6/1E90FF?text=Dairy+Products"
+            },
+            {
+                id: 6,
+                name: "Seasonal Fruits Box",
+                business: "Orchard Fresh Market",
+                type: "Produce",
+                quantity: "8 boxes",
+                pickup: "Today until 5:30 PM",
+                image: "https://placehold.co/400x300/FFA07A/CD5C5C?text=Fruit+Box"
+            }
+        ];
+
+        function renderFoodListings(items) {
+            const listingsGrid = document.getElementById('foodListingsGrid');
+            listingsGrid.innerHTML = ''; // Clear existing listings
+
+            if (items.length === 0) {
+                listingsGrid.innerHTML = '<p class="col-span-full text-center text-xl text-text-light">No food items found matching your criteria.</p>';
+                return;
+            }
+
+            items.forEach(item => {
+                const foodCard = `
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
+                        <img src="${item.image}" alt="${item.name}" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-2xl font-semibold mb-2 text-primary-500">${item.name}</h3>
+                            <p class="text-lg text-text-light mb-1"><strong>Business:</strong> ${item.business}</p>
+                            <p class="text-lg text-text-light mb-1"><strong>Type:</strong> ${item.type}</p>
+                            <p class="text-lg text-text-light mb-1"><strong>Quantity:</strong> ${item.quantity}</p>
+                            <p class="text-lg text-text-light mb-4"><strong>Pickup:</strong> ${item.pickup}</p>
+                            <button class="btn-primary w-full" onclick="showMessageBox('Claim Food', 'You are interested in: ${item.name} from ${item.business}. This is a front-end demo, so no actual claim is made. Thank you for your interest!')">
+                                Claim This Food
+                            </button>
+                        </div>
+                    </div>
+                `;
+                listingsGrid.innerHTML += foodCard;
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderFoodListings(foodItems);
+        });
+
+        const contactForm = document.getElementById('contactForm');
+        contactForm.addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent actual form submission
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const message = document.getElementById('message').value;
+
+            showMessageBox('Message Sent!', `Thank you, ${Star Plus}! Your message has been received. We'll get back to you at ${email} as soon as possible. This is a front-end demo, so no actual email was sent.`);
+
+            contactForm.reset();
+        });
+    </script>
+</body>
+</html>
